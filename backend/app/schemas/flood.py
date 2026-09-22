@@ -1,3 +1,4 @@
+from pydantic import BaseModel, Field
 from enum import Enum
 
 
@@ -28,7 +29,7 @@ class FloodRiskAssessment(BaseModel):
 class WeatherSnapshot(BaseModel):
     temperature_c: float | None = None
     precipitation_mm: float | None = None
-    forecast_hours: list[int] = []
+    forecast_hours: list[int] = Field(default_factory=list)
     source: str = 'demo'
     updated_at: str
 
