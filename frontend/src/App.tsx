@@ -2,19 +2,454 @@ import { useMemo, useState } from 'react';
 import { BrowserRouter, NavLink, Route, Routes } from 'react-router-dom';
 import { AppShell } from './components/AppShell';
 import { EmergencyContactsPage } from './components/EmergencyContactsPage';
+import { NotificationsPage } from './components/NotificationsPage';
 import { StatusBadge } from './components/StatusBadge';
 
-const checklistItems = ['Drinking water', 'First-aid supplies', 'Flashlight and batteries', 'Phone charger or power bank', 'Important documents', 'Medication and prescriptions', 'Non-perishable food', 'Warm clothes or blanket'];
-const shelters = [{ id: 'harbor', name: 'Harbor Community Center', distance: '1.8 km', area: 'Riverside district', access: 'Step-free entrance' }, { id: 'civic', name: 'Northside Civic Hall', distance: '3.4 km', area: 'North district', access: 'Pet information unavailable' }, { id: 'school', name: 'Greenfield Public School', distance: '5.1 km', area: 'Greenfield', access: 'Accessibility information unavailable' }];
+const checklistItems = [
+  'Drinking water',
+  'First-aid supplies',
+  'Flashlight and batteries',
+  'Phone charger or power bank',
+  'Important documents',
+  'Medication and prescriptions',
+  'Non-perishable food',
+  'Warm clothes or blanket',
+];
 
-function LandingPage() { return <section className="landing-page"><div className="landing-copy"><p className="eyebrow accent-eyebrow">Flood safety, simplified</p><h1>Know the risk.<br /><span>Make the safest move.</span></h1><p className="lead-copy">FloodGuard brings alerts, local conditions, evacuation guidance, and emergency tools together in one calm, clear place.</p><div className="landing-actions"><NavLink className="primary-button" to="/dashboard">Explore dashboard <span>→</span></NavLink><NavLink className="secondary-button" to="/login">Sign in</NavLink></div><div className="trust-row"><span>●</span> Built for moments that matter</div></div><div className="hero-orb" aria-hidden="true"><div className="orb-ring ring-one" /><div className="orb-ring ring-two" /><div className="orb-core">⌁</div></div></section>; }
-function DashboardPage() { return <section className="page-shell"><div className="page-header"><div><p className="eyebrow">Tuesday, September 22, 2026</p><h1>Good morning, stay prepared.</h1><p className="page-subtitle">Set your location to receive guidance for your area.</p></div><NavLink className="outline-button" to="/map">Open flood map <span>↗</span></NavLink></div><div className="demo-notice"><span>ⓘ</span><div><strong>Development preview</strong><p>Safety data cards are sample UI states. Verified provider data will replace them after location and API integration.</p></div></div><div className="dashboard-grid"><article className="risk-card card"><div className="card-topline"><span className="section-label">Current risk</span><StatusBadge tone="info" label="Awaiting location" /></div><div className="risk-value">—</div><h2>Location not set</h2><p>Choose your location to receive a FloodGuard risk assessment based on official and environmental signals.</p><NavLink className="primary-button compact" to="/map">Set location <span>→</span></NavLink></article><article className="map-preview card"><div className="map-grid" aria-hidden="true"><span className="map-cross cross-a" /><span className="map-cross cross-b" /><span className="map-road road-a" /><span className="map-road road-b" /><span className="map-pin">⌖</span></div><div className="map-overlay"><span className="section-label">Floods near me</span><NavLink to="/map">View map →</NavLink></div></article></div><div className="section-heading"><div><p className="eyebrow">Be ready</p><h2>Your safety toolkit</h2></div></div><div className="tool-grid"><ToolCard icon="↗" title="Leave or stay" text="Get a clear recommendation based on your situation." to="/decision" /><ToolCard icon="✓" title="Emergency checklist" text="Build your go-bag and track what is ready." to="/checklist" /><ToolCard icon="☎" title="Emergency contacts" text="Keep important numbers close when it matters." to="/contacts" /></div></section>; }
-function ToolCard({ icon, title, text, to }: { icon: string; title: string; text: string; to: string }) { return <NavLink className="tool-card card" to={to}><span className="tool-icon">{icon}</span><h3>{title}</h3><p>{text}</p><span className="tool-arrow">→</span></NavLink>; }
-function ChecklistPage() { const [checked, setChecked] = useState<string[]>([]); const progress = Math.round(checked.length / checklistItems.length * 100); return <section className="page-shell narrow-page"><div className="page-header"><div><p className="eyebrow">Emergency preparedness</p><h1>Emergency checklist</h1><p className="page-subtitle">A simple starting point for your personal go-bag.</p></div><StatusBadge tone="info" label="Saved locally" /></div><div className="checklist-card card"><div className="progress-header"><div><strong>{checked.length} of {checklistItems.length} ready</strong><span>Keep essentials accessible.</span></div><strong className="progress-value">{progress}%</strong></div><div className="progress-track"><span style={{ width: `${progress}%` }} /></div><div className="checklist-items">{checklistItems.map((item) => <label className={`check-item ${checked.includes(item) ? 'complete' : ''}`} key={item}><input type="checkbox" checked={checked.includes(item)} onChange={() => setChecked((items) => items.includes(item) ? items.filter((value) => value !== item) : [...items, item])} /><span className="custom-check">✓</span><span>{item}</span></label>)}</div><p className="checklist-disclaimer">General preparedness guidance, not an official emergency instruction.</p></div></section>; }
-function DecisionPage() { const questions = ['Are you currently in a flood warning or evacuation area?', 'Can you safely move to higher ground if conditions change?', 'Do you have children, older adults, pets, or mobility needs with you?']; const [answers, setAnswers] = useState<boolean[]>([]); const result = useMemo(() => answers.length === questions.length ? answers[0] ? 'Prepare to leave' : answers[1] ? 'Stay alert' : 'Shelter in place' : null, [answers]); return <section className="page-shell narrow-page"><div className="page-header"><div><p className="eyebrow">Personal safety guide</p><h1>Leave or stay</h1><p className="page-subtitle">Answer three questions to organize your next step.</p></div><StatusBadge tone="warning" label="Guidance tool" /></div><div className="wizard-card card">{result ? <div className="wizard-result"><span className="result-icon">↗</span><p className="eyebrow">Your starting recommendation</p><h2>{result}</h2><p>This is a general decision aid, not an official evacuation order. Follow verified local authority instructions.</p><div className="wizard-actions"><NavLink className="primary-button" to="/map">Check local map →</NavLink><button className="secondary-button" onClick={() => setAnswers([])}>Start again</button></div></div> : <><div className="wizard-progress"><span>Question {answers.length + 1} of {questions.length}</span><div className="progress-track"><span style={{ width: `${((answers.length + 1) / questions.length) * 100}%` }} /></div></div><h2>{questions[answers.length]}</h2><div className="answer-grid"><button className="answer-button" onClick={() => setAnswers((current) => [...current, true])}>Yes <span>→</span></button><button className="answer-button" onClick={() => setAnswers((current) => [...current, false])}>No <span>→</span></button></div><p className="checklist-disclaimer">If you are in immediate danger, contact local emergency services.</p></>}</div></section>; }
-function MapPage() { const [location, setLocation] = useState(false); return <section className="page-shell map-page"><div className="page-header"><div><p className="eyebrow">Local conditions</p><h1>Floods near me</h1><p className="page-subtitle">Explore reported areas and safety resources.</p></div><StatusBadge tone="info" label="Demo map" /></div><div className="map-demo-notice"><span>ⓘ</span><span>Integration-ready preview. MapLibre, verified alerts, and location data will be connected through FastAPI.</span></div><div className="map-workspace card"><div className="map-canvas"><div className="map-water water-one" /><div className="map-water water-two" /><div className="map-street street-one" /><div className="map-street street-two" /><button className="map-alert alert-warning selected" aria-label="Demo warning alert">!</button><span className="map-shelter shelter-one">⌂</span>{location && <span className="map-location">●</span>}<div className="map-controls"><button onClick={() => setLocation(true)} aria-label="Use current location">⌖</button><button onClick={() => setLocation(false)} aria-label="Clear current location">−</button><button aria-label="Zoom map">+</button></div><div className="map-attribution">Demo map · MapLibre/OSM integration point</div></div><aside className="map-side-panel"><div className="map-panel-head"><div><p className="section-label">Map layers</p><h2>Situation view</h2></div><span className="live-dot">● Offline</span></div><div className="selected-alert"><p className="section-label">Selected demo signal</p><div className="alert-title"><span className="severity-dot warning" /><strong>Flood warning</strong></div><p>Sample alert area. Verify official local guidance before taking action.</p><span className="alert-meta">Demo data · not a live alert</span></div><NavLink className="primary-button compact full-button" to="/decision">What should I do? <span>→</span></NavLink></aside></div></section>; }
-function SheltersPage() { const [filter, setFilter] = useState<'nearest' | 'accessible'>('nearest'); const visible = filter === 'accessible' ? shelters.filter((shelter) => shelter.id === 'harbor') : shelters; return <section className="page-shell shelters-page"><div className="page-header"><div><p className="eyebrow">Get somewhere safer</p><h1>Evacuation centers</h1><p className="page-subtitle">Find nearby facilities when verified shelter data is available.</p></div><StatusBadge tone="info" label="Demo directory" /></div><div className="shelter-notice"><span>ⓘ</span><span>Availability, capacity, and directions are unavailable in demo mode. Do not rely on these sample entries during an emergency.</span></div><div className="shelter-toolbar"><strong>{visible.length} sample centers</strong><div className="filter-tabs"><button className={filter === 'nearest' ? 'active' : ''} onClick={() => setFilter('nearest')}>Nearest</button><button className={filter === 'accessible' ? 'active' : ''} onClick={() => setFilter('accessible')}>Step-free</button></div></div><div className="shelter-list">{visible.map((shelter) => <article className="shelter-card card" key={shelter.id}><div className="shelter-icon">⌂</div><div className="shelter-main"><div className="shelter-title-row"><h2>{shelter.name}</h2><span className="availability unknown">Unverified</span></div><p className="shelter-area">{shelter.area} · {shelter.distance}</p><div className="shelter-details"><span>◷ Availability unavailable</span><span>♿ {shelter.access}</span></div><div className="shelter-actions"><button className="outline-button" disabled>Details</button><button className="primary-button compact" disabled>Directions ↗</button></div></div></article>)}</div></section>; }
-function PlaceholderPage({ title, description }: { title: string; description: string }) { return <section className="page-shell"><div className="page-header"><div><p className="eyebrow">FloodGuard tool</p><h1>{title}</h1></div><StatusBadge tone="info" label="Demo state" /></div><div className="card placeholder-card"><div className="placeholder-icon">⌁</div><h2>Integration-ready screen</h2><p>{description}</p><p className="muted-copy">This screen is intentionally marked as a demo until its normalized FastAPI service is connected.</p></div></section>; }
-function AppRoutes() { return <Routes><Route path="/" element={<LandingPage />} /><Route path="/login" element={<PlaceholderPage title="Sign in" description="Authentication will use Firebase Authentication with backend token verification." />} /><Route path="/dashboard" element={<DashboardPage />} /><Route path="/map" element={<MapPage />} /><Route path="/decision" element={<DecisionPage />} /><Route path="/shelters" element={<SheltersPage />} /><Route path="/checklist" element={<ChecklistPage />} /><Route path="/contacts" element={<EmergencyContactsPage />} /><Route path="/notifications" element={<PlaceholderPage title="Notifications" description="Notifications will distinguish official alerts, warnings, information, and system messages." />} /><Route path="/profile" element={<PlaceholderPage title="Profile" description="Manage account details and emergency preferences." />} /><Route path="/settings" element={<PlaceholderPage title="Settings" description="Manage notification, privacy, accessibility, and location preferences." />} /><Route path="/admin" element={<PlaceholderPage title="Admin console" description="Administrative monitoring will be protected by backend authorization and Firebase token verification." />} /></Routes>; }
-function App() { return <BrowserRouter><AppShell><AppRoutes /></AppShell></BrowserRouter>; }
+const shelters = [
+  { id: 'harbor', name: 'Harbor Community Center', distance: '1.8 km', area: 'Riverside district', access: 'Step-free entrance' },
+  { id: 'civic', name: 'Northside Civic Hall', distance: '3.4 km', area: 'North district', access: 'Pet information unavailable' },
+  { id: 'school', name: 'Greenfield Public School', distance: '5.1 km', area: 'Greenfield', access: 'Accessibility information unavailable' },
+];
+
+function LandingPage() {
+  return (
+    <section className="landing-page">
+      <div className="landing-copy">
+        <p className="eyebrow accent-eyebrow">Flood safety, simplified</p>
+        <h1>
+          Know the risk.<br />
+          <span>Make the safest move.</span>
+        </h1>
+        <p className="lead-copy">
+          FloodGuard brings alerts, local conditions, evacuation guidance, and emergency tools together in one calm, clear place.
+        </p>
+        <div className="landing-actions">
+          <NavLink className="primary-button" to="/dashboard">
+            Explore dashboard <span>→</span>
+          </NavLink>
+          <NavLink className="secondary-button" to="/login">
+            Sign in
+          </NavLink>
+        </div>
+        <div className="trust-row">
+          <span>●</span> Built for moments that matter
+        </div>
+      </div>
+
+      <div className="hero-orb" aria-hidden="true">
+        <div className="orb-ring ring-one" />
+        <div className="orb-ring ring-two" />
+        <div className="orb-core">⌁</div>
+      </div>
+    </section>
+  );
+}
+
+function DashboardPage() {
+  return (
+    <section className="page-shell">
+      <div className="page-header">
+        <div>
+          <p className="eyebrow">Tuesday, September 22, 2026</p>
+          <h1>Good morning, stay prepared.</h1>
+          <p className="page-subtitle">Set your location to receive guidance for your area.</p>
+        </div>
+        <NavLink className="outline-button" to="/map">
+          Open flood map <span>↗</span>
+        </NavLink>
+      </div>
+
+      <div className="demo-notice">
+        <span>ⓘ</span>
+        <div>
+          <strong>Development preview</strong>
+          <p>Safety data cards are sample UI states. Verified provider data will replace them after location and API integration.</p>
+        </div>
+      </div>
+
+      <div className="dashboard-grid">
+        <article className="risk-card card">
+          <div className="card-topline">
+            <span className="section-label">Current risk</span>
+            <StatusBadge tone="info" label="Awaiting location" />
+          </div>
+          <div className="risk-value">—</div>
+          <h2>Location not set</h2>
+          <p>Choose your location to receive a FloodGuard risk assessment based on official and environmental signals.</p>
+          <NavLink className="primary-button compact" to="/map">
+            Set location <span>→</span>
+          </NavLink>
+        </article>
+
+        <article className="map-preview card">
+          <div className="map-grid" aria-hidden="true">
+            <span className="map-cross cross-a" />
+            <span className="map-cross cross-b" />
+            <span className="map-road road-a" />
+            <span className="map-road road-b" />
+            <span className="map-pin">⌖</span>
+          </div>
+          <div className="map-overlay">
+            <span className="section-label">Floods near me</span>
+            <NavLink to="/map">View map →</NavLink>
+          </div>
+        </article>
+      </div>
+
+      <div className="section-heading">
+        <div>
+          <p className="eyebrow">Be ready</p>
+          <h2>Your safety toolkit</h2>
+        </div>
+      </div>
+
+      <div className="tool-grid">
+        <ToolCard icon="↗" title="Leave or stay" text="Get a clear recommendation based on your situation." to="/decision" />
+        <ToolCard icon="✓" title="Emergency checklist" text="Build your go-bag and track what is ready." to="/checklist" />
+        <ToolCard icon="☎" title="Emergency contacts" text="Keep important numbers close when it matters." to="/contacts" />
+      </div>
+    </section>
+  );
+}
+
+function ToolCard({ icon, title, text, to }: { icon: string; title: string; text: string; to: string }) {
+  return (
+    <NavLink className="tool-card card" to={to}>
+      <span className="tool-icon">{icon}</span>
+      <h3>{title}</h3>
+      <p>{text}</p>
+      <span className="tool-arrow">→</span>
+    </NavLink>
+  );
+}
+
+function ChecklistPage() {
+  const [checked, setChecked] = useState<string[]>([]);
+  const progress = Math.round((checked.length / checklistItems.length) * 100);
+
+  return (
+    <section className="page-shell narrow-page">
+      <div className="page-header">
+        <div>
+          <p className="eyebrow">Emergency preparedness</p>
+          <h1>Emergency checklist</h1>
+          <p className="page-subtitle">A simple starting point for your personal go-bag.</p>
+        </div>
+        <StatusBadge tone="info" label="Saved locally" />
+      </div>
+
+      <div className="checklist-card card">
+        <div className="progress-header">
+          <div>
+            <strong>
+              {checked.length} of {checklistItems.length} ready
+            </strong>
+            <span>Keep essentials accessible.</span>
+          </div>
+          <strong className="progress-value">{progress}%</strong>
+        </div>
+
+        <div className="progress-track">
+          <span style={{ width: `${progress}%` }} />
+        </div>
+
+        <div className="checklist-items">
+          {checklistItems.map((item) => (
+            <label className={`check-item ${checked.includes(item) ? 'complete' : ''}`} key={item}>
+              <input
+                type="checkbox"
+                checked={checked.includes(item)}
+                onChange={() =>
+                  setChecked((items) =>
+                    items.includes(item) ? items.filter((value) => value !== item) : [...items, item],
+                  )
+                }
+              />
+              <span className="custom-check">✓</span>
+              <span>{item}</span>
+            </label>
+          ))}
+        </div>
+
+        <p className="checklist-disclaimer">General preparedness guidance, not an official emergency instruction.</p>
+      </div>
+    </section>
+  );
+}
+
+function DecisionPage() {
+  const questions = [
+    'Are you currently in a flood warning or evacuation area?',
+    'Can you safely move to higher ground if conditions change?',
+    'Do you have children, older adults, pets, or mobility needs with you?',
+  ];
+
+  const [answers, setAnswers] = useState<boolean[]>([]);
+  const result = useMemo(
+    () =>
+      answers.length === questions.length
+        ? answers[0]
+          ? 'Prepare to leave'
+          : answers[1]
+            ? 'Stay alert'
+            : 'Shelter in place'
+        : null,
+    [answers],
+  );
+
+  return (
+    <section className="page-shell narrow-page">
+      <div className="page-header">
+        <div>
+          <p className="eyebrow">Personal safety guide</p>
+          <h1>Leave or stay</h1>
+          <p className="page-subtitle">Answer three questions to organize your next step.</p>
+        </div>
+        <StatusBadge tone="warning" label="Guidance tool" />
+      </div>
+
+      <div className="wizard-card card">
+        {result ? (
+          <div className="wizard-result">
+            <span className="result-icon">↗</span>
+            <p className="eyebrow">Your starting recommendation</p>
+            <h2>{result}</h2>
+            <p>
+              This is a general decision aid, not an official evacuation order. Follow verified local authority instructions.
+            </p>
+            <div className="wizard-actions">
+              <NavLink className="primary-button" to="/map">
+                Check local map →
+              </NavLink>
+              <button className="secondary-button" onClick={() => setAnswers([])}>
+                Start again
+              </button>
+            </div>
+          </div>
+        ) : (
+          <>
+            <div className="wizard-progress">
+              <span>
+                Question {answers.length + 1} of {questions.length}
+              </span>
+              <div className="progress-track">
+                <span style={{ width: `${((answers.length + 1) / questions.length) * 100}%` }} />
+              </div>
+            </div>
+
+            <h2>{questions[answers.length]}</h2>
+            <div className="answer-grid">
+              <button className="answer-button" onClick={() => setAnswers((current) => [...current, true])}>
+                Yes <span>→</span>
+              </button>
+              <button className="answer-button" onClick={() => setAnswers((current) => [...current, false])}>
+                No <span>→</span>
+              </button>
+            </div>
+
+            <p className="checklist-disclaimer">If you are in immediate danger, contact local emergency services.</p>
+          </>
+        )}
+      </div>
+    </section>
+  );
+}
+
+function MapPage() {
+  const [location, setLocation] = useState(false);
+
+  return (
+    <section className="page-shell map-page">
+      <div className="page-header">
+        <div>
+          <p className="eyebrow">Local conditions</p>
+          <h1>Floods near me</h1>
+          <p className="page-subtitle">Explore reported areas and safety resources.</p>
+        </div>
+        <StatusBadge tone="info" label="Demo map" />
+      </div>
+
+      <div className="map-demo-notice">
+        <span>ⓘ</span>
+        <span>Integration-ready preview. MapLibre, verified alerts, and location data will be connected through FastAPI.</span>
+      </div>
+
+      <div className="map-workspace card">
+        <div className="map-canvas">
+          <div className="map-water water-one" />
+          <div className="map-water water-two" />
+          <div className="map-street street-one" />
+          <div className="map-street street-two" />
+          <button className="map-alert alert-warning selected" aria-label="Demo warning alert">
+            !
+          </button>
+          <span className="map-shelter shelter-one">⌂</span>
+          {location && <span className="map-location">●</span>}
+
+          <div className="map-controls">
+            <button onClick={() => setLocation(true)} aria-label="Use current location">
+              ⌖
+            </button>
+            <button onClick={() => setLocation(false)} aria-label="Clear current location">
+              −
+            </button>
+            <button aria-label="Zoom map">+</button>
+          </div>
+
+          <div className="map-attribution">Demo map · MapLibre/OSM integration point</div>
+        </div>
+
+        <aside className="map-side-panel">
+          <div className="map-panel-head">
+            <div>
+              <p className="section-label">Map layers</p>
+              <h2>Situation view</h2>
+            </div>
+            <span className="live-dot">● Offline</span>
+          </div>
+
+          <div className="selected-alert">
+            <p className="section-label">Selected demo signal</p>
+            <div className="alert-title">
+              <span className="severity-dot warning" />
+              <strong>Flood warning</strong>
+            </div>
+            <p>Sample alert area. Verify official local guidance before taking action.</p>
+            <span className="alert-meta">Demo data · not a live alert</span>
+          </div>
+
+          <NavLink className="primary-button compact full-button" to="/decision">
+            What should I do? <span>→</span>
+          </NavLink>
+        </aside>
+      </div>
+    </section>
+  );
+}
+
+function SheltersPage() {
+  const [filter, setFilter] = useState<'nearest' | 'accessible'>('nearest');
+  const visible = filter === 'accessible' ? shelters.filter((shelter) => shelter.id === 'harbor') : shelters;
+
+  return (
+    <section className="page-shell shelters-page">
+      <div className="page-header">
+        <div>
+          <p className="eyebrow">Get somewhere safer</p>
+          <h1>Evacuation centers</h1>
+          <p className="page-subtitle">Find nearby facilities when verified shelter data is available.</p>
+        </div>
+        <StatusBadge tone="info" label="Demo directory" />
+      </div>
+
+      <div className="shelter-notice">
+        <span>ⓘ</span>
+        <span>Availability, capacity, and directions are unavailable in demo mode. Do not rely on these sample entries during an emergency.</span>
+      </div>
+
+      <div className="shelter-toolbar">
+        <strong>{visible.length} sample centers</strong>
+        <div className="filter-tabs">
+          <button className={filter === 'nearest' ? 'active' : ''} onClick={() => setFilter('nearest')}>
+            Nearest
+          </button>
+          <button className={filter === 'accessible' ? 'active' : ''} onClick={() => setFilter('accessible')}>
+            Step-free
+          </button>
+        </div>
+      </div>
+
+      <div className="shelter-list">
+        {visible.map((shelter) => (
+          <article className="shelter-card card" key={shelter.id}>
+            <div className="shelter-icon">⌂</div>
+            <div className="shelter-main">
+              <div className="shelter-title-row">
+                <h2>{shelter.name}</h2>
+                <span className="availability unknown">Unverified</span>
+              </div>
+              <p className="shelter-area">
+                {shelter.area} · {shelter.distance}
+              </p>
+              <div className="shelter-details">
+                <span>◷ Availability unavailable</span>
+                <span>♿ {shelter.access}</span>
+              </div>
+              <div className="shelter-actions">
+                <button className="outline-button" disabled>
+                  Details
+                </button>
+                <button className="primary-button compact" disabled>
+                  Directions ↗
+                </button>
+              </div>
+            </div>
+          </article>
+        ))}
+      </div>
+    </section>
+  );
+}
+
+function PlaceholderPage({ title, description }: { title: string; description: string }) {
+  return (
+    <section className="page-shell">
+      <div className="page-header">
+        <div>
+          <p className="eyebrow">FloodGuard tool</p>
+          <h1>{title}</h1>
+        </div>
+        <StatusBadge tone="info" label="Demo state" />
+      </div>
+
+      <div className="card placeholder-card">
+        <div className="placeholder-icon">⌁</div>
+        <h2>Integration-ready screen</h2>
+        <p>{description}</p>
+        <p className="muted-copy">This screen is intentionally marked as a demo until its normalized FastAPI service is connected.</p>
+      </div>
+    </section>
+  );
+}
+
+function AppRoutes() {
+  return (
+    <Routes>
+      <Route path="/" element={<LandingPage />} />
+      <Route path="/login" element={<PlaceholderPage title="Sign in" description="Authentication will use Firebase Authentication with backend token verification." />} />
+      <Route path="/dashboard" element={<DashboardPage />} />
+      <Route path="/map" element={<MapPage />} />
+      <Route path="/decision" element={<DecisionPage />} />
+      <Route path="/shelters" element={<SheltersPage />} />
+      <Route path="/checklist" element={<ChecklistPage />} />
+      <Route path="/contacts" element={<EmergencyContactsPage />} />
+      <Route path="/notifications" element={<NotificationsPage />} />
+      <Route path="/profile" element={<PlaceholderPage title="Profile" description="Manage account details and emergency preferences." />} />
+      <Route path="/settings" element={<PlaceholderPage title="Settings" description="Manage notification, privacy, accessibility, and location preferences." />} />
+      <Route path="/admin" element={<PlaceholderPage title="Admin console" description="Administrative monitoring will be protected by backend authorization and Firebase token verification." />} />
+    </Routes>
+  );
+}
+
+function App() {
+  return (
+    <BrowserRouter>
+      <AppShell>
+        <AppRoutes />
+      </AppShell>
+    </BrowserRouter>
+  );
+}
+
 export default App;
