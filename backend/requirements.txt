@@ -1,0 +1,15 @@
+FASTAPI
+uvicorn
+pydantic-settings
+firebase-admin
+python-dotenv
+requests
+
+# data + ml
+numpy
+pandas
+scikit-learn
+xgboost
+
+# validation + typing
+pydantic
