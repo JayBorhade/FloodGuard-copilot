@@ -19,8 +19,8 @@ class FloodRiskSource(str, Enum):
 
 class FloodRiskAssessment(BaseModel):
     level: FloodRiskLevel
-    score: int
-    confidence: int
+    score: int = Field(ge=0, le=100)
+    confidence: int = Field(ge=0, le=100)
     summary: str
     source: FloodRiskSource
     updated_at: str
