@@ -1,41 +1,37 @@
 # FloodGuard
 
-FloodGuard is a flood-safety, monitoring, awareness, and emergency-assistance platform designed to help users understand local flood conditions and take safer action quickly.
+FloodGuard is a flood-safety and emergency-assistance platform. It is currently in an incremental foundation and integration phase.
 
-This repository is currently in the foundation phase. It establishes the technical structure needed before the UI/UX implementation begins.
+## Architecture
 
-## Current foundation
+```text
+External providers → backend adapters → normalized FastAPI schemas → React services/hooks → FloodGuard UI
+```
 
-- React + Vite frontend scaffold
-- FastAPI backend scaffold
-- Shared typed API contract examples
-- Design tokens and responsive base theme
-- Routing shell with placeholder public/user/admin screens
-- Environment examples for frontend and backend
-- mock/demo-aware data conventions
+The frontend must not call Nominatim, routing providers, weather providers, or government data sources directly. Provider-specific responses belong behind backend adapters and must be normalized before reaching React.
 
-## Structure
+## Current structure
 
-- `frontend/` — React app
-- `backend/` — FastAPI app
+- `frontend/` — React, TypeScript, Vite, React Router, centralized CSS tokens
+- `backend/` — FastAPI, Pydantic schemas, authentication boundary, versioned API routes
 
-## Notes
+Current API foundation:
 
-- The frontend should consume normalized FloodGuard API responses rather than provider-specific JSON.
-- The backend is the integration boundary for weather, routing, geocoding, government sources, Firebase, and ML/risk logic.
-- The UI should treat mock data as demo data and clearly label it as non-live.
+- `GET /api/v1/health`
+- `GET /api/v1/status`
+- `GET /api/v1/notifications`
+- `GET /api/v1/auth/session`
 
-## Start locally
+The notifications endpoint is explicitly demo-labelled until a real notification store/provider is connected. Firebase authentication verification is enabled when the backend is configured for production.
 
-### Frontend
+## Local development
 
 ```bash
 cd frontend
 npm install
+npm run build
 npm run dev
 ```
-
-### Backend
 
 ```bash
 cd backend
@@ -45,5 +41,16 @@ pip install -r requirements.txt
 uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
 ```
 
-The default frontend dev server runs on `http://localhost:5173`.
-The default backend runs on `http://localhost:8000`.
+Use `frontend/.env.example` and `backend/.env.example` as configuration templates. Never commit real credentials.
+
+## Safety and data rules
+
+- Missing data is represented as unknown/unavailable, not safe.
+- A route provider result is not automatically a safe route.
+- Official alerts, community reports, derived risk, ML predictions, and system messages remain separate provenance categories.
+- Demo data must remain clearly labelled and must never look like a live emergency warning.
+- Firebase Admin credentials and provider secrets remain server-side.
+
+## Known limitations
+
+MapLibre, Firebase web authentication, Firestore, FCM, provider adapters, live alerts, weather/river feeds, routing hazard analysis, community reporting, and admin operations are not yet connected. Their UI/API boundaries should be implemented incrementally and validated before being presented as live functionality.

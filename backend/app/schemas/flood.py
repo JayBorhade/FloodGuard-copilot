@@ -34,8 +34,16 @@ class WeatherSnapshot(BaseModel):
     updated_at: str
 
 
+class RouteStatus(str, Enum):
+    RECOMMENDED = 'recommended'
+    CAUTION = 'caution'
+    AVOID = 'avoid'
+    UNKNOWN = 'unknown'
+
+
 class RouteAssessment(BaseModel):
     distance_km: float | None = None
     duration_minutes: int | None = None
-    safety_level: FloodRiskLevel = FloodRiskLevel.SAFE
-    safe_route: bool = True
+    route_status: RouteStatus = RouteStatus.UNKNOWN
+    hazard_reasons: list[str] = Field(default_factory=list)
+    is_demo: bool = False
