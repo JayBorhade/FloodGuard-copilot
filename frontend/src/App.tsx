@@ -3,8 +3,15 @@ import { AppShell } from './components/AppShell';
 import { EmergencyContactsPage } from './components/EmergencyContactsPage';
 import { NotificationsPage } from './components/NotificationsPage';
 import { StatusBadge } from './components/StatusBadge';
+import { ProtectedRoute } from './components/auth/ProtectedRoute';
 import { LandingPage } from './pages/LandingPage';
 import { DashboardPage } from './pages/DashboardPage';
+import { HomePage } from './pages/HomePage';
+import { LoginPage } from './pages/LoginPage';
+import { OnboardingPersonalPage } from './pages/OnboardingPersonalPage';
+import { OnboardingContactsPage } from './pages/OnboardingContactsPage';
+import { OnboardingLocationPage } from './pages/OnboardingLocationPage';
+import { OnboardingVerificationPage } from './pages/OnboardingVerificationPage';
 
 function PlaceholderPage({
   title,
@@ -34,45 +41,72 @@ function App() {
     <BrowserRouter>
       <AppShell>
         <Routes>
+          {/* Public routes */}
           <Route path="/" element={<LandingPage />} />
+          <Route path="/login" element={<LoginPage />} />
           <Route path="/dashboard" element={<DashboardPage />} />
-          <Route path="/notifications" element={<NotificationsPage />} />
-          <Route path="/contacts" element={<EmergencyContactsPage />} />
+
+          {/* Onboarding routes */}
+          <Route path="/onboarding/personal" element={<OnboardingPersonalPage />} />
+          <Route path="/onboarding/contacts" element={<OnboardingContactsPage />} />
+          <Route path="/onboarding/location" element={<OnboardingLocationPage />} />
+          <Route path="/onboarding/location-verification" element={<OnboardingVerificationPage />} />
+
+          {/* Protected routes */}
           <Route
-            path="/login"
-            element={
-              <PlaceholderPage
-                title="Sign in"
-                description="Firebase Authentication will provide the production sign-in flow."
-              />
-            }
+            path="/home"
+            element=(
+              <ProtectedRoute>
+                <HomePage />
+              </ProtectedRoute>
+            )
           />
           <Route
+            path="/notifications"
+            element=(
+              <ProtectedRoute>
+                <NotificationsPage />
+              </ProtectedRoute>
+            )
+          />
+          <Route
+            path="/contacts"
+            element=(
+              <ProtectedRoute>
+                <EmergencyContactsPage />
+              </ProtectedRoute>
+            )
+          />
+
+          {/* Placeholder routes */}
+          <Route
             path="/map"
-            element={
+            element=(
               <PlaceholderPage
-                title="Flood map"
-                description="MapLibre and backend-normalized map layers will be connected here."
+                title="Flood Map"
+                description="Full map view with flood layers and routing will be available soon."
               />
-            }
+            )
           />
           <Route
             path="/admin"
-            element={
+            element=(
               <PlaceholderPage
-                title="Admin operations"
-                description="Admin access requires backend-verified authorization."
+                title="Admin"
+                description="Administrator operations require backend authorization."
               />
-            }
+            )
           />
+
+          {/* 404 */}
           <Route
             path="*"
-            element={
+            element=(
               <PlaceholderPage
                 title="Page not found"
                 description="The requested FloodGuard route does not exist."
               />
-            }
+            )
           />
         </Routes>
       </AppShell>
