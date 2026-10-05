@@ -1,4 +1,4 @@
-export type RiskLevel = 'safe' | 'low' | 'moderate' | 'high' | 'critical';
+export type RiskLevel = 'safe' | 'low' | 'moderate' | 'high' | 'critical' | 'unknown';
 
 export type FloodRiskAssessment = {
   level: RiskLevel;
@@ -17,9 +17,12 @@ export type WeatherSnapshot = {
   updated_at: string;
 };
 
+export type RouteStatus = 'recommended' | 'caution' | 'avoid' | 'unknown';
+
 export type RouteAssessment = {
   distance_km: number | null;
   duration_minutes: number | null;
-  safety_level: RiskLevel;
-  safe_route: boolean;
+  route_status: RouteStatus;
+  hazard_reasons: string[];
+  is_demo: boolean;
 };
