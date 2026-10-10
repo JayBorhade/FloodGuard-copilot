@@ -77,7 +77,6 @@ export function MapPage() {
         ? [location.longitude, location.latitude]
         : DEFAULT_CENTER,
       zoom: location ? 11 : 4,
-      attributionControl: true,
     });
     mapRef.current = map;
     map.addControl(new maplibregl.NavigationControl({ showCompass: true }), 'top-right');
