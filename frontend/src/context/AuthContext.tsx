@@ -1,6 +1,8 @@
 import { createContext, useCallback, useEffect, useMemo, useState, type ReactNode } from 'react';
-import type { AuthenticatedUser } from '../types/auth';
+import { onAuthStateChanged } from 'firebase/auth';
+import type { AuthenticatedUser, AuthSessionResponse } from '../types/auth';
 import { authService } from '../services/auth';
+import { firebaseAuth } from '../lib/firebase';
 
 export interface AuthContextValue {
   isLoading: boolean;
@@ -8,6 +10,8 @@ export interface AuthContextValue {
   user: AuthenticatedUser | null;
   error: string | null;
   loginDemo: () => Promise<void>;
+  loginWithEmail: (email: string, password: string) => Promise<void>;
+  createAccount: (name: string, email: string, password: string) => Promise<void>;
   logout: () => Promise<void>;
 }
 
@@ -19,37 +23,49 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<AuthenticatedUser | null>(null);
   const [error, setError] = useState<string | null>(null);
 
+  const applySession = useCallback((session: AuthSessionResponse) => {
+    setIsAuthenticated(session.authenticated);
+    setUser(session.user ?? null);
+    setError(null);
+  }, []);
+
   const restoreSession = useCallback(async () => {
     setIsLoading(true);
     try {
-      const session = await authService.getSession();
-      setIsAuthenticated(session.authenticated);
-      setUser(session.user ?? null);
-      setError(null);
+      applySession(await authService.getSession());
     } catch (cause) {
-      authService.clearToken();
       setIsAuthenticated(false);
       setUser(null);
       setError(cause instanceof Error ? cause.message : 'Failed to restore session');
     } finally {
       setIsLoading(false);
     }
-  }, []);
+  }, [applySession]);
 
   useEffect(() => {
-    void restoreSession();
+    if (!firebaseAuth) {
+      void restoreSession();
+      return;
+    }
+
+    const unsubscribe = onAuthStateChanged(firebaseAuth, (firebaseUser) => {
+      if (!firebaseUser && !authService.getToken()) {
+        setIsAuthenticated(false);
+        setUser(null);
+        setError(null);
+        setIsLoading(false);
+        return;
+      }
+      void restoreSession();
+    });
+    return unsubscribe;
   }, [restoreSession]);
 
   const loginDemo = useCallback(async () => {
     setIsLoading(true);
     setError(null);
     try {
-      const session = await authService.loginDemo();
-      setIsAuthenticated(session.authenticated);
-      setUser(session.user ?? null);
-      if (!session.authenticated || !session.user) {
-        throw new Error('Demo sign-in did not return an authenticated session.');
-      }
+      applySession(await authService.loginDemo());
     } catch (cause) {
       authService.clearToken();
       setIsAuthenticated(false);
@@ -60,7 +76,35 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     } finally {
       setIsLoading(false);
     }
-  }, []);
+  }, [applySession]);
+
+  const loginWithEmail = useCallback(async (email: string, password: string) => {
+    setIsLoading(true);
+    setError(null);
+    try {
+      applySession(await authService.signIn(email, password));
+    } catch (cause) {
+      const message = cause instanceof Error ? cause.message : 'Sign-in failed';
+      setError(message);
+      throw new Error(message);
+    } finally {
+      setIsLoading(false);
+    }
+  }, [applySession]);
+
+  const createAccount = useCallback(async (name: string, email: string, password: string) => {
+    setIsLoading(true);
+    setError(null);
+    try {
+      applySession(await authService.createAccount(name, email, password));
+    } catch (cause) {
+      const message = cause instanceof Error ? cause.message : 'Account creation failed';
+      setError(message);
+      throw new Error(message);
+    } finally {
+      setIsLoading(false);
+    }
+  }, [applySession]);
 
   const logout = useCallback(async () => {
     setIsLoading(true);
@@ -79,8 +123,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const value = useMemo(
-    () => ({ isLoading, isAuthenticated, user, error, loginDemo, logout }),
-    [isLoading, isAuthenticated, user, error, loginDemo, logout],
+    () => ({ isLoading, isAuthenticated, user, error, loginDemo, loginWithEmail, createAccount, logout }),
+    [isLoading, isAuthenticated, user, error, loginDemo, loginWithEmail, createAccount, logout],
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
