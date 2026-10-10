@@ -34,6 +34,8 @@ jobs:
         run: npm install --no-audit --no-fund
       - name: Type-check and build
         run: npm run build
+      - name: Run frontend unit tests
+        run: npm test
 
   backend-smoke:
     name: Backend API and authentication tests
