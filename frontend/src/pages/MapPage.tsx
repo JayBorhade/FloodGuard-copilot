@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import maplibregl, { type Map as MapLibreMap, type Marker } from 'maplibre-gl';
+import 'maplibre-gl/dist/maplibre-gl.css';
 import { NavLink } from 'react-router-dom';
 import { fetchJson } from '../lib/api';
 import { locationService } from '../services/location';
@@ -36,6 +37,7 @@ export function MapPage() {
   const markerRef = useRef<Marker | null>(null);
   const [location, setLocation] = useState<UserLocation | null>(() => locationService.getUserLocation());
   const [mapLoaded, setMapLoaded] = useState(false);
+  const mapLoadedRef = useRef(false);
   const [mapError, setMapError] = useState<string | null>(null);
   const [locationMessage, setLocationMessage] = useState<string | null>(null);
   const [locating, setLocating] = useState(false);
@@ -82,11 +84,12 @@ export function MapPage() {
     map.addControl(new maplibregl.ScaleControl({ unit: 'metric' }), 'bottom-left');
 
     map.on('load', () => {
+      mapLoadedRef.current = true;
       setMapLoaded(true);
       setMapError(null);
     });
     map.on('error', () => {
-      if (!mapLoaded) {
+      if (!mapLoadedRef.current) {
         setMapError('The base map could not load. Check your internet connection and try again.');
       }
     });
