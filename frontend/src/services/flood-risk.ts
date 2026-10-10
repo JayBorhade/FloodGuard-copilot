@@ -1,4 +1,4 @@
-import type { FloodRiskAssessment, RiskLevel } from '../types/api';
+import type { FloodRiskAssessment } from '../types/api';
 import { fetchJson } from '../lib/api';
 
 export interface RiskData extends FloodRiskAssessment {
