@@ -2,6 +2,8 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from app.api.v1.routes.alerts import router as alerts_router
+from app.api.v1.routes.community import router as community_router
+from app.api.v1.routes.safe_routes import router as safe_routes_router
 from app.api.v1.routes.emergency import router as emergency_router
 from app.api.v1.routes.auth import router as auth_router
 from app.api.v1.routes.flood import router as flood_router
@@ -27,6 +29,8 @@ app.include_router(map_router, prefix=settings.api_v1_prefix)
 app.include_router(weather_router, prefix=settings.api_v1_prefix)
 app.include_router(alerts_router, prefix=settings.api_v1_prefix)
 app.include_router(emergency_router, prefix=settings.api_v1_prefix)
+app.include_router(community_router, prefix=settings.api_v1_prefix)
+app.include_router(safe_routes_router, prefix=settings.api_v1_prefix)
 
 
 @app.get('/')

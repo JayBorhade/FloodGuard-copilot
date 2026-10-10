@@ -8,6 +8,7 @@ class Settings(BaseSettings):
     firebase_project_id: str | None = None
     imd_alerts_api_url: str | None = None
     imd_api_key: str | None = None
+    database_path: str = 'data/floodguard.sqlite3'
     environment: str = 'development'
 
     model_config = SettingsConfigDict(env_file='.env', env_file_encoding='utf-8', case_sensitive=False)

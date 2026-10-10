@@ -9,6 +9,7 @@ const navItems = [
   { label: 'Notifications', to: '/notifications' },
   { label: 'Emergency contacts', to: '/contacts' },
   { label: 'Emergency support', to: '/emergency' },
+  { label: 'Community reports & routes', to: '/community' },
   { label: 'Admin', to: '/admin' },
 ];
 
