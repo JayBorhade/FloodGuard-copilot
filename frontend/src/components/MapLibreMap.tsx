@@ -1,15 +1,5 @@
 import { useEffect, useRef } from 'react';
-
-interface MapLibreMap {
-  remove: () => void;
-}
-
-interface MapOptions {
-  container: string;
-  style: string;
-  center: [number, number];
-  zoom: number;
-}
+import type { Map as MapLibreMapInstance } from 'maplibre-gl';
 
 export function MapLibreMap({
   latitude,
@@ -23,16 +13,18 @@ export function MapLibreMap({
   className?: string;
 }) {
   const mapContainer = useRef<HTMLDivElement>(null);
-  const map = useRef<MapLibreMap | null>(null);
+  const map = useRef<MapLibreMapInstance | null>(null);
 
   useEffect(() => {
     if (!mapContainer.current) return;
 
+    let disposed = false;
+
     const initMap = async () => {
       try {
-        // Dynamically import MapLibre to keep it optional
         const maplibregl = await import('maplibre-gl');
-        // Use a basic OSM-compatible tile provider
+        if (disposed || !mapContainer.current) return;
+
         const style = {
           version: 8,
           sources: {
@@ -57,25 +49,26 @@ export function MapLibreMap({
           style,
           center: [longitude, latitude],
           zoom,
-        } as any);
+        } as maplibregl.MapOptions);
 
-        // Add a marker for user location
         const markerEl = document.createElement('div');
         markerEl.className = 'map-marker';
         new maplibregl.Marker(markerEl)
           .setLngLat([longitude, latitude])
           .addTo(map.current);
       } catch (error) {
-        console.error('Failed to initialize map:', error);
+        if (!disposed) {
+          console.error('Failed to initialize map:', error);
+        }
       }
     };
 
-    initMap();
+    void initMap();
 
     return () => {
-      if (map.current) {
-        map.current.remove();
-      }
+      disposed = true;
+      map.current?.remove();
+      map.current = null;
     };
   }, [latitude, longitude, zoom]);
 
