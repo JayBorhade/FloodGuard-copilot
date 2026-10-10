@@ -8,6 +8,7 @@ const navItems = [
   { label: 'Flood map', to: '/map' },
   { label: 'Notifications', to: '/notifications' },
   { label: 'Emergency contacts', to: '/contacts' },
+  { label: 'Emergency support', to: '/emergency' },
   { label: 'Admin', to: '/admin' },
 ];
 

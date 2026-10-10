@@ -1,6 +1,7 @@
 import { BrowserRouter, Route, Routes } from 'react-router-dom';
 import { AppShell } from './components/AppShell';
 import { EmergencyContactsPage } from './components/EmergencyContactsPage';
+import { EmergencySupportPage } from './pages/EmergencySupportPage';
 import { NotificationsPage } from './components/NotificationsPage';
 import { StatusBadge } from './components/StatusBadge';
 import { ProtectedRoute } from './components/auth/ProtectedRoute';
@@ -59,6 +60,7 @@ function AppRoutes() {
           <Route path="/home" element={<ProtectedRoute><HomePage /></ProtectedRoute>} />
           <Route path="/notifications" element={<ProtectedRoute><NotificationsPage /></ProtectedRoute>} />
           <Route path="/contacts" element={<ProtectedRoute><EmergencyContactsPage /></ProtectedRoute>} />
+          <Route path="/emergency" element={<ProtectedRoute><EmergencySupportPage /></ProtectedRoute>} />
 
           <Route path="/map" element={<MapPage />} />
           <Route

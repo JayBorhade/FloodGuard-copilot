@@ -3,7 +3,7 @@ import { onboardingService } from '../services/onboarding';
 import type { EmergencyContact } from '../types/user';
 
 const officialContacts = [
-  { name: 'Local emergency services', number: 'Use your local emergency number', detail: 'For immediate danger or urgent rescue assistance', icon: '!', tone: 'critical' },
+  { name: 'Emergency Response Support System (India)', number: '112', detail: 'Pan-India emergency number for police, fire & rescue, and health emergencies', icon: '!', tone: 'critical', url: 'https://112.gov.in/' },
   { name: 'National disaster helpline', number: 'Number unavailable', detail: 'Verify the current official number for your region', icon: '⌁', tone: 'info' },
   { name: 'Local disaster authority', number: 'Contact unavailable', detail: 'State or district emergency management office', icon: '⌖', tone: 'safe' },
 ];
@@ -63,7 +63,7 @@ export function EmergencyContactsPage() {
       <div className="contacts-grid">
         <div>
           <div className="contacts-section-heading"><div><p className="eyebrow">Official guidance</p><h2>Who to call</h2></div></div>
-          <div className="contact-list">{officialContacts.map((contact) => <article className="contact-card card" key={contact.name}><span className={`contact-icon ${contact.tone}`}>{contact.icon}</span><div className="contact-copy"><h3>{contact.name}</h3><strong>{contact.number}</strong><p>{contact.detail}</p></div><button className="contact-action" type="button" aria-label={`Call ${contact.name}`} disabled>Call</button></article>)}</div>
+          <div className="contact-list">{officialContacts.map((contact) => <article className="contact-card card" key={contact.name}><span className={`contact-icon ${contact.tone}`}>{contact.icon}</span><div className="contact-copy"><h3>{contact.name}</h3><strong>{contact.number}</strong><p>{contact.detail}</p>{'url' in contact && <a href={contact.url} target="_blank" rel="noreferrer">Official ERSS information</a>}</div><button className="contact-action" type="button" aria-label={`Call ${contact.name}`} disabled>Call</button></article>)}</div>
         </div>
         <div className="personal-contacts card">
           <div className="contacts-section-heading"><div><p className="eyebrow">Your support network</p><h2>People to reach</h2></div><button className="add-contact-button" type="button" onClick={() => setShowForm((value) => !value)}>{showForm ? 'Cancel' : '+ Add'}</button></div>
