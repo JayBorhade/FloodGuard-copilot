@@ -6,10 +6,12 @@ on:
       - main
       - "batch-1/**"
       - "batch-2/**"
+      - "batch-3/**"
   pull_request:
     branches:
       - main
       - "batch-1/**"
+      - "batch-2/**"
 
 permissions:
   contents: read

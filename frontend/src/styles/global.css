@@ -1320,3 +1320,45 @@ label {
     font-size: var(--text-xl);
   }
 }
+
+
+/* ========== BATCH 3 DASHBOARD DETAILS ========== */
+.risk-metadata {
+  display: grid;
+  gap: var(--spacing-sm);
+  padding-top: var(--spacing-md);
+  border-top: 1px solid var(--border);
+  color: var(--text-secondary);
+  font-size: var(--text-sm);
+  overflow-wrap: anywhere;
+}
+
+.risk-metadata strong {
+  color: var(--text);
+}
+
+.dashboard-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spacing-sm);
+  margin-top: var(--spacing-md);
+}
+
+.map-preview-copy {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--spacing-md);
+  max-width: 460px;
+}
+
+.map-preview-copy p:not(.eyebrow) {
+  color: var(--text-secondary);
+}
+
+@media (max-width: 600px) {
+  .dashboard-actions > * {
+    width: 100%;
+    justify-content: center;
+  }
+}
