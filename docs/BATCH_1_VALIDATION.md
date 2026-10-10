@@ -1,25 +1,28 @@
 # Batch 1 — Validation Record
 
-This record separates repository changes from checks that have actually executed.
+**Validated code commit:** `86e8f5d315501d6381cb8858951e96480dde9366`  
+**CI run:** [Batch 1 Stabilization](https://github.com/JayBorhade/FloodGuard-copilot/actions/runs/38022644540)
 
 ## Automated checks
 
-| Check | Command / method | Expected evidence | Result |
-|---|---|---|---|
-| Frontend TypeScript and production bundle | `cd frontend && npm run build` | TypeScript and Vite both exit successfully | Pending GitHub Actions run |
-| Backend Python syntax | `cd backend && python -m compileall -q app` | No syntax errors | Pending GitHub Actions run |
-| Health route | pytest smoke test | `GET /api/v1/health` returns HTTP 200 and `status=ok` | Pending GitHub Actions run |
-| Status route | pytest smoke test | `GET /api/v1/status` returns HTTP 200 | Pending GitHub Actions run |
-| Notifications route | pytest smoke test | `GET /api/v1/notifications` returns HTTP 200 and response schema fields | Pending GitHub Actions run |
-| Development auth session | pytest smoke test | `GET /api/v1/auth/session` returns HTTP 200 and an explicitly demo user | Pending GitHub Actions run |
+| Check | Command / method | Result |
+|---|---|---|
+| Frontend TypeScript and production bundle | `cd frontend && npm run build` (`tsc -b && vite build`) | **Passed** on the validated code commit |
+| Backend Python syntax | `cd backend && python -m compileall -q app` | **Passed** |
+| Health route | pytest smoke test | **Passed** — HTTP 200 and `status=ok` |
+| Status route | pytest smoke test | **Passed** — HTTP 200 and expected status |
+| Notifications route | pytest smoke test | **Passed** — HTTP 200 and response schema fields |
+| Development auth session | pytest smoke test | **Passed** — HTTP 200 and explicitly demo-labelled user |
+| Backend test suite | `python -m pytest -q` | **4 passed** |
 
-## Manual review performed
+## Fixes made after the first CI attempt
 
-- Corrected invalid route JSX expressions in `frontend/src/App.tsx`.
-- Confirmed the MapLibre import exists in source and added its package dependency.
-- Confirmed `backend/app/main.py` registers the health, notifications, and auth routers.
-- Confirmed the flood-risk endpoint is not part of the registered API baseline and has not been represented as working by this batch.
+The first frontend build identified three additional TypeScript blockers after the route JSX was repaired: a MapLibre ref type mismatch, nullable onboarding state being spread into required state, and a comparison against a location state (`requested`) that does not exist. All were corrected, and the subsequent CI run passed both jobs.
+
+## Warnings
+
+The backend smoke tests passed with one upstream Starlette deprecation warning about using `httpx` with `starlette.testclient`. It did not affect the test result and should be revisited when updating the test stack.
 
 ## Completion gate
 
-Batch 1 is not considered validated until the frontend build and backend smoke-test jobs finish successfully in GitHub Actions. If either job fails, fix the root cause and rerun the checks before marking this batch complete.
+The frontend production build and backend smoke-test jobs both passed for the validated code commit. The workflow also runs for subsequent pushes and pull requests to `main`. This batch validates the current foundation only; it does not claim live flood data, flood-risk endpoint availability, map hazard layers, or production integrations.
