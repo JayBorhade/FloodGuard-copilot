@@ -12,7 +12,7 @@ export function OnboardingLocationPage() {
       locationService.storeUserLocation(location);
       const current = onboardingService.getState();
       onboardingService.setState({
-        ...current,
+        ...(current ?? { step: 'personal', completed: false }),
         step: 'verification',
         location,
       });
@@ -98,7 +98,7 @@ export function OnboardingLocationPage() {
           </div>
 
           <div className="onboarding-actions">
-            {state !== 'requested' && state !== 'granted' && (
+            {state !== 'requesting' && state !== 'granted' && (
               <button type="button" className="primary-button" onClick={requestLocation}>
                 Request location access
               </button>
