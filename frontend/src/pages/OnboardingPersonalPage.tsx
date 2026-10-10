@@ -4,22 +4,25 @@ import { onboardingService } from '../services/onboarding';
 
 export function OnboardingPersonalPage() {
   const navigate = useNavigate();
-  const [displayName, setDisplayName] = useState('');
-  const [email, setEmail] = useState('');
+  const savedState = onboardingService.getState();
+  const [displayName, setDisplayName] = useState(savedState?.personal_info?.display_name ?? '');
+  const [email, setEmail] = useState(savedState?.personal_info?.email ?? '');
   const [error, setError] = useState<string | null>(null);
 
   const handleContinue = () => {
-    if (!displayName.trim()) {
+    const name = displayName.trim();
+    if (!name) {
       setError('Please enter your name');
       return;
     }
 
+    const current = onboardingService.getState();
     onboardingService.setState({
+      ...(current ?? { step: 'personal', completed: false }),
       step: 'contacts',
       completed: false,
-      personal_info: { display_name: displayName, email: email || undefined },
+      personal_info: { ...(current?.personal_info ?? {}), display_name: name, email: email.trim() || undefined },
     });
-
     navigate('/onboarding/contacts');
   };
 
@@ -46,13 +49,12 @@ export function OnboardingPersonalPage() {
         <div className="onboarding-card">
           <h1>Tell us about yourself</h1>
           <p>We'll use this information to personalize your flood safety experience.</p>
-
           {error && <div className="notification-error" role="alert">{error}</div>}
 
           <form
             className="onboarding-form"
-            onSubmit={(e) => {
-              e.preventDefault();
+            onSubmit={(event) => {
+              event.preventDefault();
               handleContinue();
             }}
           >
@@ -60,34 +62,33 @@ export function OnboardingPersonalPage() {
               <label htmlFor="displayName">Full name *</label>
               <input
                 id="displayName"
+                name="displayName"
                 type="text"
+                autoComplete="name"
+                required
                 placeholder="Your name"
                 value={displayName}
-                onChange={(e) => {
-                  setDisplayName(e.target.value);
+                onChange={(event) => {
+                  setDisplayName(event.target.value);
                   setError(null);
                 }}
               />
             </div>
-
             <div className="form-group">
               <label htmlFor="email">Email</label>
               <input
                 id="email"
+                name="email"
                 type="email"
+                autoComplete="email"
                 placeholder="your.email@example.com"
                 value={email}
-                onChange={(e) => setEmail(e.target.value)}
+                onChange={(event) => setEmail(event.target.value)}
               />
             </div>
-
             <div className="onboarding-actions">
-              <button type="submit" className="primary-button">
-                Continue
-              </button>
-              <button type="button" className="secondary-button" onClick={handleSkip}>
-                Skip
-              </button>
+              <button type="submit" className="primary-button">Continue</button>
+              <button type="button" className="secondary-button" onClick={handleSkip}>Skip</button>
             </div>
           </form>
         </div>
