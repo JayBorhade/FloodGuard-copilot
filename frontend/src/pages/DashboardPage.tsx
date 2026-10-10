@@ -3,6 +3,7 @@ import { NavLink } from 'react-router-dom';
 import { StatusBadge } from '../components/StatusBadge';
 import { locationService } from '../services/location';
 import { floodRiskService, type RiskData } from '../services/flood-risk';
+import { DashboardSignals } from '../components/DashboardSignals';
 
 function formatUpdatedAt(value: string): string {
   const timestamp = Date.parse(value);
@@ -54,6 +55,8 @@ export function DashboardPage() {
         </div>
         <StatusBadge tone={riskTone} label={loading ? 'Updating…' : riskLabel} />
       </div>
+
+      <DashboardSignals />
 
       <div className="demo-notice" role="status">
         <span aria-hidden="true">ⓘ</span>

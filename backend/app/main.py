@@ -1,11 +1,13 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
+from app.api.v1.routes.alerts import router as alerts_router
 from app.api.v1.routes.auth import router as auth_router
 from app.api.v1.routes.flood import router as flood_router
 from app.api.v1.routes.health import router as health_router
 from app.api.v1.routes.map import router as map_router
 from app.api.v1.routes.notifications import router as notifications_router
+from app.api.v1.routes.weather import router as weather_router
 from app.core.config import settings
 
 app = FastAPI(title=settings.project_name, version='0.1.0', description='FloodGuard API')
@@ -21,6 +23,8 @@ app.include_router(notifications_router, prefix=settings.api_v1_prefix)
 app.include_router(auth_router, prefix=settings.api_v1_prefix)
 app.include_router(flood_router, prefix=settings.api_v1_prefix)
 app.include_router(map_router, prefix=settings.api_v1_prefix)
+app.include_router(weather_router, prefix=settings.api_v1_prefix)
+app.include_router(alerts_router, prefix=settings.api_v1_prefix)
 
 
 @app.get('/')

@@ -8,6 +8,10 @@ on:
       - "batch-2/**"
       - "batch-3/**"
       - "batch-4/**"
+      - "batch-5/**"
+      - "batch-6/**"
+      - "batch-7/**"
+      - "batch-8/**"
   pull_request:
     branches:
       - main
