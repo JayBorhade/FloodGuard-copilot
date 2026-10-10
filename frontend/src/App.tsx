@@ -4,6 +4,7 @@ import { EmergencyContactsPage } from './components/EmergencyContactsPage';
 import { NotificationsPage } from './components/NotificationsPage';
 import { StatusBadge } from './components/StatusBadge';
 import { ProtectedRoute } from './components/auth/ProtectedRoute';
+import { AuthProvider } from './context/AuthContext';
 import { LandingPage } from './pages/LandingPage';
 import { DashboardPage } from './pages/DashboardPage';
 import { HomePage } from './pages/HomePage';
@@ -36,86 +37,51 @@ function PlaceholderPage({
   );
 }
 
-function App() {
+function AppRoutes() {
   return (
     <BrowserRouter>
       <AppShell>
         <Routes>
-          {/* Public routes */}
           <Route path="/" element={<LandingPage />} />
           <Route path="/login" element={<LoginPage />} />
           <Route path="/dashboard" element={<DashboardPage />} />
 
-          {/* Onboarding routes */}
-          <Route path="/onboarding/personal" element={<OnboardingPersonalPage />} />
-          <Route path="/onboarding/contacts" element={<OnboardingContactsPage />} />
-          <Route path="/onboarding/location" element={<OnboardingLocationPage />} />
+          {/* Onboarding requires an explicit session; progress is persisted locally. */}
+          <Route path="/onboarding/personal" element={<ProtectedRoute><OnboardingPersonalPage /></ProtectedRoute>} />
+          <Route path="/onboarding/contacts" element={<ProtectedRoute><OnboardingContactsPage /></ProtectedRoute>} />
+          <Route path="/onboarding/location" element={<ProtectedRoute><OnboardingLocationPage /></ProtectedRoute>} />
           <Route
             path="/onboarding/location-verification"
-            element={<OnboardingVerificationPage />}
+            element={<ProtectedRoute><OnboardingVerificationPage /></ProtectedRoute>}
           />
 
-          {/* Protected routes */}
-          <Route
-            path="/home"
-            element={
-              <ProtectedRoute>
-                <HomePage />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/notifications"
-            element={
-              <ProtectedRoute>
-                <NotificationsPage />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/contacts"
-            element={
-              <ProtectedRoute>
-                <EmergencyContactsPage />
-              </ProtectedRoute>
-            }
-          />
+          <Route path="/home" element={<ProtectedRoute><HomePage /></ProtectedRoute>} />
+          <Route path="/notifications" element={<ProtectedRoute><NotificationsPage /></ProtectedRoute>} />
+          <Route path="/contacts" element={<ProtectedRoute><EmergencyContactsPage /></ProtectedRoute>} />
 
-          {/* Placeholder routes: intentionally do not imply live functionality. */}
           <Route
             path="/map"
-            element={
-              <PlaceholderPage
-                title="Flood Map"
-                description="Full map view with flood layers and routing will be available soon."
-              />
-            }
+            element={<PlaceholderPage title="Flood Map" description="Full map view with flood layers and routing will be available soon." />}
           />
           <Route
             path="/admin"
-            element={
-              <ProtectedRoute>
-                <PlaceholderPage
-                  title="Admin"
-                  description="Administrator operations require backend authorization."
-                />
-              </ProtectedRoute>
-            }
+            element={<ProtectedRoute><PlaceholderPage title="Admin" description="Administrator operations require backend authorization." /></ProtectedRoute>}
           />
-
-          {/* 404 */}
           <Route
             path="*"
-            element={
-              <PlaceholderPage
-                title="Page not found"
-                description="The requested FloodGuard route does not exist."
-              />
-            }
+            element={<PlaceholderPage title="Page not found" description="The requested FloodGuard route does not exist." />}
           />
         </Routes>
       </AppShell>
     </BrowserRouter>
+  );
+}
+
+function App() {
+  return (
+    <AuthProvider>
+      <AppRoutes />
+    </AuthProvider>
   );
 }
 
