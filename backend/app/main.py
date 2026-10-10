@@ -1,5 +1,6 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from starlette.middleware.trustedhost import TrustedHostMiddleware
 
 from app.api.v1.routes.alerts import router as alerts_router
 from app.api.v1.routes.community import router as community_router
@@ -14,6 +15,10 @@ from app.api.v1.routes.weather import router as weather_router
 from app.core.config import settings
 
 app = FastAPI(title=settings.project_name, version='0.1.0', description='FloodGuard API')
+app.add_middleware(
+    TrustedHostMiddleware,
+    allowed_hosts=settings.allowed_hosts,
+)
 app.add_middleware(
     CORSMiddleware,
     allow_origins=settings.allowed_origins,
@@ -31,6 +36,19 @@ app.include_router(alerts_router, prefix=settings.api_v1_prefix)
 app.include_router(emergency_router, prefix=settings.api_v1_prefix)
 app.include_router(community_router, prefix=settings.api_v1_prefix)
 app.include_router(safe_routes_router, prefix=settings.api_v1_prefix)
+
+
+@app.middleware("http")
+async def security_headers(request, call_next):
+    response = await call_next(request)
+    response.headers.setdefault("X-Content-Type-Options", "nosniff")
+    response.headers.setdefault("X-Frame-Options", "DENY")
+    response.headers.setdefault("Referrer-Policy", "strict-origin-when-cross-origin")
+    response.headers.setdefault("Permissions-Policy", "geolocation=(self), camera=(), microphone=()")
+    response.headers.setdefault("Cross-Origin-Resource-Policy", "same-site")
+    if request.url.scheme == "https":
+        response.headers.setdefault("Strict-Transport-Security", "max-age=31536000; includeSubDomains")
+    return response
 
 
 @app.get('/')
