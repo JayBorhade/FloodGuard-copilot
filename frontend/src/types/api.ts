@@ -7,6 +7,8 @@ export type FloodRiskAssessment = {
   summary: string;
   source: 'official' | 'community' | 'model' | 'derived';
   updated_at: string;
+  data_available?: boolean;
+  reasons?: string[];
 };
 
 export type WeatherSnapshot = {
