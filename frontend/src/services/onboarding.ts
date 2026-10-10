@@ -1,18 +1,30 @@
+import { authService } from './auth';
 import type { OnboardingState } from '../types/user';
 
-const ONBOARDING_STORAGE_KEY = 'floodguard_onboarding';
+const LEGACY_STORAGE_KEY = 'floodguard_onboarding';
+const STORAGE_PREFIX = 'floodguard_onboarding:';
 
 class OnboardingService {
+  private storageKey(): string {
+    return `${STORAGE_PREFIX}${authService.getStorageScope()}`;
+  }
+
   getState(): OnboardingState | null {
     try {
-      const stored = localStorage.getItem(ONBOARDING_STORAGE_KEY);
+      const key = this.storageKey();
+      let stored = localStorage.getItem(key);
+      if (!stored && authService.getStorageScope() === 'demo-user') {
+        stored = localStorage.getItem(LEGACY_STORAGE_KEY);
+        if (stored) {
+          localStorage.setItem(key, stored);
+          localStorage.removeItem(LEGACY_STORAGE_KEY);
+        }
+      }
       if (!stored) return null;
       const parsed: unknown = JSON.parse(stored);
       if (!parsed || typeof parsed !== 'object') return null;
       const state = parsed as Partial<OnboardingState>;
-      const validSteps: OnboardingState['step'][] = [
-        'personal', 'contacts', 'location', 'verification', 'complete',
-      ];
+      const validSteps: OnboardingState['step'][] = ['personal', 'contacts', 'location', 'verification', 'complete'];
       if (!state.step || !validSteps.includes(state.step)) return null;
       return {
         step: state.step,
@@ -28,12 +40,12 @@ class OnboardingService {
   }
 
   setState(state: OnboardingState): void {
-    localStorage.setItem(ONBOARDING_STORAGE_KEY, JSON.stringify(state));
+    localStorage.setItem(this.storageKey(), JSON.stringify(state));
   }
 
   updateStep(step: OnboardingState['step']): void {
     const current = this.getState() ?? this.getDefaultState();
-    this.setState({ ...current, step, completed: step === 'complete' ? true : current.completed });
+    this.setState({ ...current, step, completed: step === 'complete' });
   }
 
   completeOnboarding(): void {
@@ -42,16 +54,11 @@ class OnboardingService {
   }
 
   reset(): void {
-    localStorage.removeItem(ONBOARDING_STORAGE_KEY);
+    localStorage.removeItem(this.storageKey());
   }
 
   private getDefaultState(): OnboardingState {
-    return {
-      step: 'personal',
-      completed: false,
-      personal_info: {},
-      contacts: [],
-    };
+    return { step: 'personal', completed: false, personal_info: {}, contacts: [] };
   }
 }
 
