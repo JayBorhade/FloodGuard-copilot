@@ -1,12 +1,14 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { onboardingService } from '../services/onboarding';
+import { useAuth } from '../hooks/useAuth';
 
 export function OnboardingPersonalPage() {
   const navigate = useNavigate();
+  const { user } = useAuth();
   const savedState = onboardingService.getState();
-  const [displayName, setDisplayName] = useState(savedState?.personal_info?.display_name ?? '');
-  const [email, setEmail] = useState(savedState?.personal_info?.email ?? '');
+  const [displayName, setDisplayName] = useState(savedState?.personal_info?.display_name ?? user?.display_name ?? '');
+  const [email, setEmail] = useState(savedState?.personal_info?.email ?? user?.email ?? '');
   const [error, setError] = useState<string | null>(null);
 
   const handleContinue = () => {
