@@ -1,13 +1,15 @@
-name: Batch 1 Stabilization
+name: FloodGuard Build and API Validation
 
 on:
   push:
     branches:
       - main
       - "batch-1/**"
+      - "batch-2/**"
   pull_request:
     branches:
       - main
+      - "batch-1/**"
 
 permissions:
   contents: read
@@ -32,9 +34,11 @@ jobs:
         run: npm install --no-audit --no-fund
       - name: Type-check and build
         run: npm run build
+      - name: Run frontend unit tests
+        run: npm test
 
   backend-smoke:
-    name: Backend API smoke tests
+    name: Backend API and authentication tests
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -52,7 +56,7 @@ jobs:
         run: python -m pip install --upgrade pip && python -m pip install fastapi uvicorn pydantic-settings firebase-admin httpx pytest
       - name: Compile backend modules
         run: python -m compileall -q app
-      - name: Run API smoke tests
+      - name: Run API and authentication tests
         env:
           PYTHONPATH: .
           ENVIRONMENT: development

@@ -11,22 +11,31 @@ bearer_scheme = HTTPBearer(auto_error=False)
 def get_current_user(
     credentials: HTTPAuthorizationCredentials | None = Depends(bearer_scheme),
 ) -> dict[str, Any]:
-    """Verify a Firebase bearer token when Firebase is configured.
+    """Verify a Firebase bearer token, or an explicit demo token in development.
 
-    Development mode intentionally remains usable without credentials so the UI can be
-    developed against clearly labelled demo endpoints. Protected production routes must
-    set ENVIRONMENT=production and configure Firebase verification.
+    Missing credentials never create an authenticated session implicitly.
+    Production must configure Firebase token verification.
     """
     if credentials is None:
-        if settings.environment != 'production':
-            return {'uid': 'demo-user', 'role': 'demo', 'is_demo': True}
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail='Authentication required')
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail='Authentication required',
+        )
 
     if settings.environment != 'production' and credentials.credentials == 'demo-token':
-        return {'uid': 'demo-user', 'role': 'demo', 'is_demo': True}
+        return {
+            'uid': 'demo-user',
+            'email': None,
+            'name': 'FloodGuard Demo',
+            'role': 'demo',
+            'is_demo': True,
+        }
 
     if not settings.firebase_project_id:
-        raise HTTPException(status_code=status.HTTP_503_SERVICE_UNAVAILABLE, detail='Authentication is not configured')
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail='Authentication is not configured',
+        )
 
     try:
         import firebase_admin
@@ -37,10 +46,16 @@ def get_current_user(
         decoded = auth.verify_id_token(credentials.credentials)
         return decoded
     except Exception as exc:
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail='Invalid authentication token') from exc
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail='Invalid authentication token',
+        ) from exc
 
 
 def require_admin(user: dict[str, Any] = Depends(get_current_user)) -> dict[str, Any]:
     if user.get('role') not in {'admin', 'administrator'}:
-        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail='Administrator access required')
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail='Administrator access required',
+        )
     return user

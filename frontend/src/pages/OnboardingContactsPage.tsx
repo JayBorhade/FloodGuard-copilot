@@ -1,43 +1,56 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { onboardingService } from '../services/onboarding';
-import { EmergencyContact } from '../types/user';
+import type { EmergencyContact } from '../types/user';
 
 export function OnboardingContactsPage() {
   const navigate = useNavigate();
-  const state = onboardingService.getState();
-  const [contacts, setContacts] = useState<EmergencyContact[]>(state?.contacts || []);
+  const [contacts, setContacts] = useState<EmergencyContact[]>(() => onboardingService.getState()?.contacts ?? []);
   const [newContact, setNewContact] = useState({ name: '', relationship: '', phone: '' });
   const [error, setError] = useState<string | null>(null);
 
+  const saveContacts = (nextContacts: EmergencyContact[]) => {
+    setContacts(nextContacts);
+    const current = onboardingService.getState();
+    onboardingService.setState({
+      ...(current ?? { step: 'contacts', completed: false }),
+      step: 'contacts',
+      completed: false,
+      contacts: nextContacts,
+    });
+  };
+
   const handleAddContact = () => {
-    if (!newContact.name.trim() || !newContact.phone.trim()) {
+    const name = newContact.name.trim();
+    const phone = newContact.phone.trim();
+    if (!name || !phone) {
       setError('Please enter both name and phone number');
       return;
     }
 
     const contact: EmergencyContact = {
-      id: `contact-${Date.now()}`,
-      name: newContact.name,
-      relationship: newContact.relationship || 'Contact',
-      phone: newContact.phone,
+      id: typeof crypto !== 'undefined' && 'randomUUID' in crypto ? crypto.randomUUID() : `contact-${Date.now()}`,
+      name,
+      relationship: newContact.relationship.trim() || 'Contact',
+      phone,
       created_at: new Date().toISOString(),
     };
 
-    setContacts([...contacts, contact]);
+    saveContacts([...contacts, contact]);
     setNewContact({ name: '', relationship: '', phone: '' });
     setError(null);
   };
 
   const handleRemoveContact = (id: string) => {
-    setContacts(contacts.filter((c) => c.id !== id));
+    saveContacts(contacts.filter((contact) => contact.id !== id));
   };
 
   const handleContinue = () => {
     const current = onboardingService.getState();
     onboardingService.setState({
-      ...(current ?? { step: 'personal', completed: false }),
+      ...(current ?? { step: 'contacts', completed: false }),
       step: 'location',
+      completed: false,
       contacts,
     });
     navigate('/onboarding/location');
@@ -66,50 +79,22 @@ export function OnboardingContactsPage() {
         <div className="onboarding-card">
           <h1>Add emergency contacts</h1>
           <p>These people will be easy to reach if you need help during a flood.</p>
-
           {error && <div className="notification-error" role="alert">{error}</div>}
 
           <div className="contacts-form">
             <div className="form-group">
               <label htmlFor="contactName">Name</label>
-              <input
-                id="contactName"
-                type="text"
-                placeholder="Contact name"
-                value={newContact.name}
-                onChange={(e) => setNewContact({ ...newContact, name: e.target.value })}
-              />
+              <input id="contactName" type="text" autoComplete="name" placeholder="Contact name" value={newContact.name} onChange={(event) => setNewContact({ ...newContact, name: event.target.value })} />
             </div>
-
             <div className="form-group">
               <label htmlFor="contactRelationship">Relationship</label>
-              <input
-                id="contactRelationship"
-                type="text"
-                placeholder="e.g., Family, Friend"
-                value={newContact.relationship}
-                onChange={(e) => setNewContact({ ...newContact, relationship: e.target.value })}
-              />
+              <input id="contactRelationship" type="text" placeholder="e.g., Family, Friend" value={newContact.relationship} onChange={(event) => setNewContact({ ...newContact, relationship: event.target.value })} />
             </div>
-
             <div className="form-group">
               <label htmlFor="contactPhone">Phone number</label>
-              <input
-                id="contactPhone"
-                type="tel"
-                placeholder="+1 (555) 000-0000"
-                value={newContact.phone}
-                onChange={(e) => setNewContact({ ...newContact, phone: e.target.value })}
-              />
+              <input id="contactPhone" type="tel" autoComplete="tel" placeholder="+91 00000 00000" value={newContact.phone} onChange={(event) => setNewContact({ ...newContact, phone: event.target.value })} />
             </div>
-
-            <button
-              type="button"
-              className="secondary-button"
-              onClick={handleAddContact}
-            >
-              Add contact
-            </button>
+            <button type="button" className="secondary-button" onClick={handleAddContact}>Add contact</button>
           </div>
 
           {contacts.length > 0 && (
@@ -122,25 +107,15 @@ export function OnboardingContactsPage() {
                     <p>{contact.relationship}</p>
                     <p>{contact.phone}</p>
                   </div>
-                  <button
-                    type="button"
-                    className="danger-button"
-                    onClick={() => handleRemoveContact(contact.id)}
-                  >
-                    Remove
-                  </button>
+                  <button type="button" className="danger-button" onClick={() => handleRemoveContact(contact.id)}>Remove</button>
                 </div>
               ))}
             </div>
           )}
 
           <div className="onboarding-actions">
-            <button type="button" className="primary-button" onClick={handleContinue}>
-              Continue
-            </button>
-            <button type="button" className="secondary-button" onClick={handleSkip}>
-              Skip for now
-            </button>
+            <button type="button" className="primary-button" onClick={handleContinue}>Continue</button>
+            <button type="button" className="secondary-button" onClick={handleSkip}>Skip for now</button>
           </div>
         </div>
       </div>
