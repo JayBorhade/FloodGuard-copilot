@@ -1,5 +1,5 @@
-import { RiskLevel } from '../types/api';
-import { RiskData } from '../services/flood-risk';
+import type { RiskLevel } from '../types/api';
+import type { RiskData } from '../services/flood-risk';
 
 function getRiskColor(level: RiskLevel): string {
   switch (level) {
@@ -40,17 +40,19 @@ export function RiskCard({ risk }: { risk: RiskData | null }) {
         <div className="card-topline">
           <span className="section-label">Current flood risk</span>
         </div>
-        <div className="risk-value">-</div>
+        <div className="risk-value">—</div>
         <p className="risk-subtitle">Unavailable</p>
       </div>
     );
   }
 
+  const hasEvidence = risk.data_available && !risk.is_stale;
+
   return (
     <div className="card risk-card">
       <div className="card-topline">
         <span className="section-label">Current flood risk</span>
-        {risk.is_stale && <span className="stale-badge">Stale</span>}
+        {risk.is_stale && <span className="stale-badge">Unknown / stale</span>}
       </div>
 
       <div className="risk-display">
@@ -63,11 +65,11 @@ export function RiskCard({ risk }: { risk: RiskData | null }) {
         <div className="risk-metrics">
           <div className="metric">
             <span className="metric-label">Score</span>
-            <span className="metric-value">{risk.score.toFixed(1)}</span>
+            <span className="metric-value">{hasEvidence ? risk.score.toFixed(0) : '—'}</span>
           </div>
           <div className="metric">
             <span className="metric-label">Confidence</span>
-            <span className="metric-value">{(risk.confidence * 100).toFixed(0)}%</span>
+            <span className="metric-value">{hasEvidence ? `${risk.confidence}%` : 'Unavailable'}</span>
           </div>
         </div>
       </div>
@@ -82,9 +84,11 @@ export function RiskCard({ risk }: { risk: RiskData | null }) {
         <div className="risk-age">
           <span className="age-label">Updated:</span>
           <span className="age-value">
-            {risk.data_age_minutes < 1
-              ? 'just now'
-              : `${risk.data_age_minutes} min ago`}
+            {!risk.data_available || risk.data_age_minutes === null
+              ? 'No live evidence'
+              : risk.data_age_minutes < 1
+                ? 'just now'
+                : `${risk.data_age_minutes} min ago`}
           </span>
         </div>
       </div>
