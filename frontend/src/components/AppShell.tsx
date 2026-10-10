@@ -1,5 +1,6 @@
 import type { ReactNode } from 'react';
-import { NavLink } from 'react-router-dom';
+import { NavLink, useNavigate } from 'react-router-dom';
+import { useAuth } from '../hooks/useAuth';
 
 const navItems = [
   { label: 'Home', to: '/' },
@@ -10,6 +11,22 @@ const navItems = [
 ];
 
 export function AppShell({ children }: { children: ReactNode }) {
+  const navigate = useNavigate();
+  const { isLoading, isAuthenticated, user, logout } = useAuth();
+
+  const handleAuthAction = async () => {
+    if (!isAuthenticated) {
+      navigate('/login');
+      return;
+    }
+    try {
+      await logout();
+      navigate('/login', { replace: true });
+    } catch {
+      // AuthProvider keeps the error state; avoid an unhandled event rejection.
+    }
+  };
+
   return (
     <div className="app-shell">
       <aside className="sidebar">
@@ -37,6 +54,15 @@ export function AppShell({ children }: { children: ReactNode }) {
           <p className="eyebrow">System status</p>
           <strong>Development preview</strong>
           <span>External feeds are not connected.</span>
+          {isAuthenticated && user && (
+            <p className="auth-session-label">
+              Signed in as {user.display_name || user.email || 'FloodGuard user'}
+              {user.is_demo ? ' · Demo' : ''}
+            </p>
+          )}
+          <button type="button" className="secondary-button" onClick={handleAuthAction} disabled={isLoading}>
+            {isLoading ? 'Please wait…' : isAuthenticated ? 'Sign out' : 'Sign in'}
+          </button>
         </div>
       </aside>
 
