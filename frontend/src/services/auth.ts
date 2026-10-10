@@ -77,6 +77,11 @@ class AuthService {
     return localStorage.getItem(TOKEN_KEY);
   }
 
+  getStorageScope(): string {
+    if (this.getToken() === DEMO_TOKEN) return 'demo-user';
+    return firebaseAuth?.currentUser?.uid ?? 'anonymous';
+  }
+
   clearToken(): void {
     localStorage.removeItem(TOKEN_KEY);
   }
