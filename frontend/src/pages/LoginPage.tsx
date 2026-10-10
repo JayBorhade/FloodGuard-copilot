@@ -1,28 +1,48 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
+import { onboardingService } from '../services/onboarding';
+
+function getNextOnboardingPath(): string {
+  const state = onboardingService.getState();
+  if (state?.completed) return '/home';
+  switch (state?.step) {
+    case 'contacts':
+      return '/onboarding/contacts';
+    case 'location':
+      return '/onboarding/location';
+    case 'verification':
+      return '/onboarding/location-verification';
+    case 'complete':
+      return '/home';
+    case 'personal':
+    default:
+      return '/onboarding/personal';
+  }
+}
 
 export function LoginPage() {
   const navigate = useNavigate();
-  const { isAuthenticated } = useAuth();
-  const [isLoading, setIsLoading] = useState(false);
+  const { isLoading, isAuthenticated, loginDemo, error: authError } = useAuth();
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  if (isAuthenticated) {
-    navigate('/onboarding/personal', { replace: true });
-    return null;
-  }
+  useEffect(() => {
+    if (!isLoading && isAuthenticated) {
+      navigate(getNextOnboardingPath(), { replace: true });
+    }
+  }, [isLoading, isAuthenticated, navigate]);
 
   const handleDemoLogin = async () => {
+    setIsSubmitting(true);
+    setError(null);
     try {
-      setIsLoading(true);
-      setError(null);
-      // In demo mode, the backend returns a demo user for unauthenticated requests
-      // This simulates a user clicking "Continue as Demo"
-      navigate('/onboarding/personal', { replace: true });
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Login failed');
-      setIsLoading(false);
+      await loginDemo();
+      navigate(getNextOnboardingPath(), { replace: true });
+    } catch (cause) {
+      setError(cause instanceof Error ? cause.message : 'Demo sign-in failed');
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -35,21 +55,21 @@ export function LoginPage() {
             Get real-time flood alerts and safety guidance for your area.
           </p>
 
-          {error && <div className="notification-error" role="alert">{error}</div>}
+          {(error || authError) && <div className="notification-error" role="alert">{error || authError}</div>}
 
           <div className="auth-form">
             <button
+              type="button"
               className="primary-button auth-button"
               onClick={handleDemoLogin}
-              disabled={isLoading}
+              disabled={isLoading || isSubmitting}
             >
-              {isLoading ? 'Signing in...' : 'Continue with Demo'}
+              {isSubmitting ? 'Signing in...' : 'Continue with Demo'}
             </button>
-
             <div className="auth-divider">or</div>
-
             <p className="auth-note">
-              Firebase authentication will be available in production.
+              Real account sign-in is not configured in this build. Demo access is available only
+              when the backend is running in development mode.
             </p>
           </div>
 
@@ -57,7 +77,7 @@ export function LoginPage() {
             <span aria-hidden="true">ⓘ</span>
             <div>
               <strong>Development environment</strong>
-              <p>This is a development preview using demo credentials.</p>
+              <p>Demo access is clearly labelled and is not a production identity.</p>
             </div>
           </div>
         </div>
