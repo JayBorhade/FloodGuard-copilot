@@ -50,63 +50,68 @@ function App() {
           <Route path="/onboarding/personal" element={<OnboardingPersonalPage />} />
           <Route path="/onboarding/contacts" element={<OnboardingContactsPage />} />
           <Route path="/onboarding/location" element={<OnboardingLocationPage />} />
-          <Route path="/onboarding/location-verification" element={<OnboardingVerificationPage />} />
+          <Route
+            path="/onboarding/location-verification"
+            element={<OnboardingVerificationPage />}
+          />
 
           {/* Protected routes */}
           <Route
             path="/home"
-            element=(
+            element={
               <ProtectedRoute>
                 <HomePage />
               </ProtectedRoute>
-            )
+            }
           />
           <Route
             path="/notifications"
-            element=(
+            element={
               <ProtectedRoute>
                 <NotificationsPage />
               </ProtectedRoute>
-            )
+            }
           />
           <Route
             path="/contacts"
-            element=(
+            element={
               <ProtectedRoute>
                 <EmergencyContactsPage />
               </ProtectedRoute>
-            )
+            }
           />
 
-          {/* Placeholder routes */}
+          {/* Placeholder routes: intentionally do not imply live functionality. */}
           <Route
             path="/map"
-            element=(
+            element={
               <PlaceholderPage
                 title="Flood Map"
                 description="Full map view with flood layers and routing will be available soon."
               />
-            )
+            }
           />
           <Route
             path="/admin"
-            element=(
-              <PlaceholderPage
-                title="Admin"
-                description="Administrator operations require backend authorization."
-              />
-            )
+            element={
+              <ProtectedRoute>
+                <PlaceholderPage
+                  title="Admin"
+                  description="Administrator operations require backend authorization."
+                />
+              </ProtectedRoute>
+            }
           />
 
           {/* 404 */}
           <Route
             path="*"
-            element=(
+            element={
               <PlaceholderPage
                 title="Page not found"
                 description="The requested FloodGuard route does not exist."
               />
-            )
+            }
           />
         </Routes>
       </AppShell>
