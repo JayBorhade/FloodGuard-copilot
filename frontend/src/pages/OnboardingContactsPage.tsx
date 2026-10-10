@@ -36,7 +36,7 @@ export function OnboardingContactsPage() {
   const handleContinue = () => {
     const current = onboardingService.getState();
     onboardingService.setState({
-      ...current,
+      ...(current ?? { step: 'personal', completed: false }),
       step: 'location',
       contacts,
     });
