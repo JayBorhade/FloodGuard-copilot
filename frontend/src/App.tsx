@@ -9,6 +9,7 @@ import { LandingPage } from './pages/LandingPage';
 import { DashboardPage } from './pages/DashboardPage';
 import { HomePage } from './pages/HomePage';
 import { LoginPage } from './pages/LoginPage';
+import { MapPage } from './pages/MapPage';
 import { OnboardingPersonalPage } from './pages/OnboardingPersonalPage';
 import { OnboardingContactsPage } from './pages/OnboardingContactsPage';
 import { OnboardingLocationPage } from './pages/OnboardingLocationPage';
@@ -59,10 +60,7 @@ function AppRoutes() {
           <Route path="/notifications" element={<ProtectedRoute><NotificationsPage /></ProtectedRoute>} />
           <Route path="/contacts" element={<ProtectedRoute><EmergencyContactsPage /></ProtectedRoute>} />
 
-          <Route
-            path="/map"
-            element={<PlaceholderPage title="Flood Map" description="Full map view with flood layers and routing will be available soon." />}
-          />
+          <Route path="/map" element={<MapPage />} />
           <Route
             path="/admin"
             element={<ProtectedRoute><PlaceholderPage title="Admin" description="Administrator operations require backend authorization." /></ProtectedRoute>}
