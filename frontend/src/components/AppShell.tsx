@@ -5,6 +5,7 @@ import { useAuth } from '../hooks/useAuth';
 const navItems = [
   { label: 'Home', to: '/' },
   { label: 'Dashboard', to: '/dashboard' },
+  { label: 'Flood map', to: '/map' },
   { label: 'Notifications', to: '/notifications' },
   { label: 'Emergency contacts', to: '/contacts' },
   { label: 'Admin', to: '/admin' },
