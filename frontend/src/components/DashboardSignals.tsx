@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { fetchJson } from '../lib/api';
+import { locationService } from '../services/location';
 import '../styles/signals.css';
 
 type WeatherResponse = {
@@ -43,17 +44,10 @@ export function DashboardSignals() {
 
   useEffect(() => {
     let active = true;
-    const raw = localStorage.getItem('floodguard_user_location:demo-user')
-      || localStorage.getItem('floodguard_user_location');
-    let coordinates: { latitude: number; longitude: number } | null = null;
-    try {
-      const parsed = raw ? JSON.parse(raw) as { latitude?: number; longitude?: number } : null;
-      if (typeof parsed?.latitude === 'number' && typeof parsed.longitude === 'number'
-        && parsed.latitude >= -90 && parsed.latitude <= 90
-        && parsed.longitude >= -180 && parsed.longitude <= 180) {
-        coordinates = { latitude: parsed.latitude, longitude: parsed.longitude };
-      }
-    } catch { /* Ignore malformed local storage; the page remains in unknown state. */ }
+    const savedLocation = locationService.getUserLocation();
+    const coordinates = savedLocation
+      ? { latitude: savedLocation.latitude, longitude: savedLocation.longitude }
+      : null;
 
     if (coordinates) {
       const query = `latitude=${encodeURIComponent(coordinates.latitude)}&longitude=${encodeURIComponent(coordinates.longitude)}`;
