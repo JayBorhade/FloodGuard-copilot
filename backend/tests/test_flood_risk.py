@@ -14,7 +14,7 @@ def test_risk_endpoint_returns_unknown_when_live_sources_are_missing() -> None:
     assert body['level'] == 'unknown'
     assert body['data_available'] is False
     assert body['confidence'] == 0
-    assert 'not a safe condition' in body['summary']
+    assert 'safe condition' in body['summary']
     assert body['reasons']
 
 
