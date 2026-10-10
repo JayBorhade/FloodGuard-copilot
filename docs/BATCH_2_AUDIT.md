@@ -12,7 +12,7 @@
 5. **Onboarding continuity:** personal details are restored from saved state and prefilled from the authenticated profile when available. State updates merge rather than erase other fields; malformed stored state is rejected; emergency contacts persist on add/remove and are reused by the Emergency Contacts page.
 6. **Per-user browser storage:** onboarding, emergency-contact, and location data are namespaced by the current Firebase UID or demo identity to reduce cross-account data leakage on a shared browser. Existing unscoped data is migrated only to the explicit demo scope.
 7. **Location continuity and manual entry:** saved device location is restored. Users can request browser geolocation, manually enter latitude/longitude with range validation, or continue without location. Location is persisted before continuing.
-8. **Automated checks:** backend smoke tests cover anonymous session behavior, explicit development demo authentication, and rejection of missing credentials by the protected auth dependency. CI runs for Batch 2 pushes.
+8. **Automated checks:** backend smoke tests cover anonymous session behavior, explicit development demo authentication, and rejection of missing credentials by the protected auth dependency. Vitest/jsdom tests cover anonymous sessions, demo-token login and failure cleanup, onboarding persistence, malformed storage, and account scoping. CI runs frontend build + unit tests and backend API/auth tests for Batch 2 pushes.
 
 ## Important boundaries
 
