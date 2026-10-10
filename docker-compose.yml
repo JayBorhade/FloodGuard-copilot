@@ -1,0 +1,25 @@
+services:
+  backend:
+    build: { context: ./backend }
+    environment:
+      ENVIRONMENT: production
+      API_V1_PREFIX: /api/v1
+      ALLOWED_ORIGINS: '["http://localhost:8080"]'
+      ALLOWED_HOSTS: '["localhost","127.0.0.1","backend","testserver"]'
+      DATABASE_PATH: /app/data/floodguard.sqlite3
+      FIREBASE_PROJECT_ID: ${FIREBASE_PROJECT_ID:-}
+      IMD_ALERTS_API_URL: ${IMD_ALERTS_API_URL:-}
+      IMD_API_KEY: ${IMD_API_KEY:-}
+    volumes: [floodguard_data:/app/data]
+    expose: ["8000"]
+    restart: unless-stopped
+  frontend:
+    build:
+      context: ./frontend
+      args: { VITE_API_BASE_URL: "" }
+    ports: ["8080:80"]
+    depends_on:
+      backend: { condition: service_started }
+    restart: unless-stopped
+volumes:
+  floodguard_data:
