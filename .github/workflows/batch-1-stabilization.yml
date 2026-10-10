@@ -7,11 +7,14 @@ on:
       - "batch-1/**"
       - "batch-2/**"
       - "batch-3/**"
+      - "batch-4/**"
   pull_request:
     branches:
       - main
       - "batch-1/**"
       - "batch-2/**"
+      - "batch-3/**"
+      - "batch-4/**"
 
 permissions:
   contents: read
