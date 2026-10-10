@@ -1,8 +1,10 @@
-from pydantic import BaseModel, Field
 from enum import Enum
+
+from pydantic import BaseModel, Field
 
 
 class FloodRiskLevel(str, Enum):
+    UNKNOWN = 'unknown'
     SAFE = 'safe'
     LOW = 'low'
     MODERATE = 'moderate'
@@ -24,6 +26,8 @@ class FloodRiskAssessment(BaseModel):
     summary: str
     source: FloodRiskSource
     updated_at: str
+    data_available: bool = True
+    reasons: list[str] = Field(default_factory=list)
 
 
 class WeatherSnapshot(BaseModel):
