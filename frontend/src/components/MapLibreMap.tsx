@@ -1,5 +1,5 @@
 import { useEffect, useRef } from 'react';
-import type { Map as MapLibreMapInstance } from 'maplibre-gl';
+import type { Map as MapLibreMapInstance, MapOptions } from 'maplibre-gl';
 
 export function MapLibreMap({
   latitude,
@@ -49,7 +49,7 @@ export function MapLibreMap({
           style,
           center: [longitude, latitude],
           zoom,
-        } as maplibregl.MapOptions);
+        } as MapOptions);
 
         const markerEl = document.createElement('div');
         markerEl.className = 'map-marker';
