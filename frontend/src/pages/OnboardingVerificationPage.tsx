@@ -4,12 +4,14 @@ import { onboardingService } from '../services/onboarding';
 
 export function OnboardingVerificationPage() {
   const navigate = useNavigate();
-  const location = locationService.getUserLocation();
   const state = onboardingService.getState();
+  const location = locationService.getUserLocation() ?? state?.location ?? null;
+  const contacts = state?.contacts ?? [];
 
   const handleComplete = () => {
     if (location) {
-      locationService.storeVerifiedLocation(location);
+      locationService.storeUserLocation(location);
+      locationService.storeVerifiedLocation({ ...location, verified_at: new Date().toISOString() });
     }
     onboardingService.completeOnboarding();
     navigate('/home', { replace: true });
@@ -32,40 +34,35 @@ export function OnboardingVerificationPage() {
 
         <div className="onboarding-card">
           <h1>You're all set!</h1>
-          <p>Your FloodGuard account is ready.</p>
-
+          <p>Review your setup before continuing. You can change these details later.</p>
           <div className="verification-summary">
             {state?.personal_info?.display_name && (
-              <div className="summary-item">
-                <strong>Name:</strong> {state.personal_info.display_name}
-              </div>
+              <div className="summary-item"><strong>Name:</strong> {state.personal_info.display_name}</div>
             )}
-
-            {state?.contacts && state.contacts.length > 0 && (
-              <div className="summary-item">
-                <strong>Emergency contacts:</strong> {state.contacts.length} added
-              </div>
+            {state?.personal_info?.email && (
+              <div className="summary-item"><strong>Email:</strong> {state.personal_info.email}</div>
             )}
-
+            {contacts.length > 0 && (
+              <div className="summary-item"><strong>Emergency contacts:</strong> {contacts.length} added</div>
+            )}
             {location && (
               <div className="summary-item">
-                <strong>Location:</strong> Set ({location.accuracy_meters?.toFixed(0)}m accuracy)
+                <strong>Location:</strong> Saved ({location.latitude.toFixed(4)}, {location.longitude.toFixed(4)})
               </div>
             )}
+            {!location && <div className="summary-item"><strong>Location:</strong> Not set — you can add it later.</div>}
           </div>
 
           <div className="demo-notice">
             <span aria-hidden="true">ⓘ</span>
             <div>
               <strong>Welcome to FloodGuard</strong>
-              <p>Stay safe and informed. Enable notifications to receive alerts for your area.</p>
+              <p>Demo onboarding data is saved in this browser only. It is not synced to a server account.</p>
             </div>
           </div>
 
           <div className="onboarding-actions">
-            <button type="button" className="primary-button" onClick={handleComplete}>
-              Go to FloodGuard
-            </button>
+            <button type="button" className="primary-button" onClick={handleComplete}>Go to FloodGuard</button>
           </div>
         </div>
       </div>
